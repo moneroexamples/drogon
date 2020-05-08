@@ -55,6 +55,7 @@ target_include_directories(
   PUBLIC $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/lib/inc>
          $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/orm_lib/inc>
          $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}>
+         $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/third_party/jsoncpp/include>
          $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/trantor>
          $<INSTALL_INTERFACE:${INSTALL_INCLUDE_DIR}>)
 
@@ -63,6 +64,11 @@ if(WIN32)
     ${PROJECT_NAME}
     PRIVATE $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/third_party/mman-win32>)
 endif(WIN32)
+
+# jsoncpp
+set(JSONCPP_WITH_TESTS OFF CACHE INTERNAL "")
+add_subdirectory(third_party/jsoncpp)
+target_link_libraries(${PROJECT_NAME} PRIVATE jsoncpp_lib)
 
 add_subdirectory(trantor)
 
@@ -87,10 +93,6 @@ endif(DROGON_CXX_STANDARD LESS 17)
 
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake_modules/)
 
-# jsoncpp
-find_package(Jsoncpp REQUIRED)
-target_link_libraries(${PROJECT_NAME} PUBLIC Jsoncpp_lib)
-list(APPEND INCLUDE_DIRS_FOR_DYNAMIC_VIEW ${JSONCPP_INCLUDE_DIRS})
 
 if(NOT WIN32)
   find_package(UUID REQUIRED)

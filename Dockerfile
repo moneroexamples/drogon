@@ -1,27 +1,22 @@
-FROM ubuntu:18.04
+FROM gcc:8.3
 
-RUN apt-get update -yqq \
-    && apt-get install -yqq --no-install-recommends software-properties-common \
-    sudo curl wget cmake pkg-config locales git gcc-8 g++-8 \
-    openssl libssl-dev libjsoncpp-dev uuid-dev zlib1g-dev \
-    postgresql-server-dev-all libmariadbclient-dev libsqlite3-dev \
-    && rm -rf /var/lib/apt/lists/* \
-    && locale-gen en_US.UTF-8
+RUN set -ex && \
+    apt-get update && \
+    apt-get install -y \
+        cmake 
 
-ENV LANG=en_US.UTF-8 \
-    LANGUAGE=en_US:en \
-    LC_ALL=en_US.UTF-8 \
-    CC=gcc-8 \
-    CXX=g++-8 \
-    AR=gcc-ar-8 \
-    RANLIB=gcc-ranlib-8 \
-    IROOT=/install
+RUN mkdir -p /drogon
 
-ENV DROGON_ROOT="$IROOT/drogon"
+COPY . /drogon
 
-ADD https://api.github.com/repos/an-tao/drogon/git/refs/heads/master $IROOT/version.json
-RUN git clone https://github.com/an-tao/drogon $DROGON_ROOT
+WORKDIR /drogon
 
-WORKDIR $DROGON_ROOT
+RUN set -ex && \
+    git submodule init && git submodule update && \
+    mkdir -p  build && cd build && \
+    cmake .. && \
+    make -j 4 
 
-RUN ./build.sh
+#WORKDIR /drogon/build
+
+#CMD ["./cpphttp"]
